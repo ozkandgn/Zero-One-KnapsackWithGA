@@ -4,9 +4,10 @@
 Zero-One-Knapsack Problems Solution With Genetic Algorithm
 
 --------------------
-Goal: Get the most valuable value to put the bag.
+### **Goal: Get the most valuable value to put the bag.**
 
-Steps:
+***Steps:***
+
 1- Get Random List
 
 2- Create First Population(0-1)
@@ -29,7 +30,7 @@ Steps:
 
 -----------------------
 
-test.txt Values:
+***test.txt Values:***
 
   Random List
   
