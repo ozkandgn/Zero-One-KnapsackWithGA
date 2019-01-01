@@ -5,10 +5,9 @@ from individual import Individual
 from goods import Goods
 import read 
 
-class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığı sınıf
+class GeneticAlgorithm(Individual,Goods): 
     
-    def __init__(self,path="/"):        #nesne tanımlandığı an çaışacak fonksiyon
-                                    #verinin alındığı ve değişlenlerin oluşturulduğu fonksiyon        
+    def __init__(self,path="/"):       
         values=read.read_values(path)
         self.random_list = list(map(float,values[0].split(",")))
         self.random_value = 0
@@ -23,11 +22,11 @@ class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığ
         self.generation = 0
         self.all_fitness=[[],[],[]]
 
-    def get_random(self):               #random değer üreten fonksiyon
+    def get_random(self):               
         self.random_value = (self.random_value + 1) % len(self.random_list)
         return self.random_list[self.random_value - 1]
     
-    def create_populations(self):       #initialise                  #ilk populasyonu üretmeye yarayan fonksiyon
+    def create_populations(self):      
         populations=[]
         for i in range(self.population_length):
             populations.append(Individual())
@@ -37,12 +36,12 @@ class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığ
             populations[i].set_value(values)
         self.populations=populations
 
-    def create_model(self):                     #arayüz fonksiyonu
+    def create_model(self):                  
         self.create_populations()
         self.get_weight_and_valuable()
         self.generation=0
         
-    def print_population(self):                 #nesil ve popülasyonu yazdıran fonksiyon
+    def print_population(self):                 
         print("Generation: ",self.generation,"\n")
         self.generation+=1
         print("Population: ",end="")
@@ -72,14 +71,14 @@ class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığ
                     fitness+=self.goods[j].get_valuable()
             self.populations[i].set_fitness(fitness)   
     
-    def calculate(self):                        #işlemlerin başlatıldığı fonksiyon
+    def calculate(self):                
         self.calculate_fitness()
         self.print_population()
         avg=lambda x: sum(x)/float(len(x))
         all_fitness=[]
         for i in self.populations:
             all_fitness.append(i.get_fitness())
-        self.all_fitness[0].append(min(all_fitness))    #grafik oluşturmak için
+        self.all_fitness[0].append(min(all_fitness))    
         self.all_fitness[1].append(max(all_fitness))
         self.all_fitness[2].append(avg(all_fitness))
         self.tournament_selection()
@@ -87,14 +86,14 @@ class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığ
         self.bit_flipping_mutation()
         self.survival_select()         
         
-    def tournament_selection(self): #Parent Select          #turnuva seçim ile ebeveyn seçimi
+    def tournament_selection(self): #Parent Select
         ceil=lambda x: round(x+0.5)
         get_point=lambda : ceil(self.get_random()*(self.population_length))-1
         populations=[]
         for i in range(self.population_length):
-            populations.append(Individual())    #sıfırdan bireyler oluşuyor
+            populations.append(Individual())    
             max_point=get_point()
-            for j in range(self.k_value-1):     #k tane value arasından en iyisi seçiliyor
+            for j in range(self.k_value-1):     
                 rand_point=get_point()
                 if self.populations[rand_point].get_fitness() >\
                                         self.populations[max_point].get_fitness():
@@ -102,26 +101,22 @@ class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığ
             populations[i]=self.populations[max_point]
 
         self.parents=deepcopy(self.populations)
-        self.parent_lenght=self.population_length       #parent ve childler dağıtılıyor
-        self.populations=populations                    #artık yeni popülasyon childler
+        self.parent_lenght=self.population_length       
+        self.populations=populations                    
         self.population_length=len(populations)
         
-    def one_point_crossover(self): #Recombine           #tek noktalı çaprazlama fonksiyonu
-        swap=lambda x,y,k:((x[0:k]+y[k:]),(y[0:k]+x[k:])) #swap
-        ceil=lambda x: round(x+0.5) #üste yuvarlama
-        get_point=lambda : ceil(self.get_random()*(self.individual_size))  #random yer veren lambda
+    def one_point_crossover(self): #Recombine          
+        swap=lambda x,y,k:((x[0:k]+y[k:]),(y[0:k]+x[k:])) 
+        ceil=lambda x: round(x+0.5)
+        get_point=lambda : ceil(self.get_random()*(self.individual_size))  
         values=[]
         for i in range(0,self.population_length,2):
             print("Applying Crossover")
             try:
                 self.populations[i+1]
                 point=get_point()
-                
-                #yazdırma
                 print("Parents: [",self.populations[i].get_value(), " , ",\
                                  self.populations[i+1].get_value(),"] at point:",point)
-                #yazdırma
-                
                 ind_one,ind_two=swap(self.populations[i].get_value(),\
                                      self.populations[i+1].get_value(),\
                                      point)#crossover
@@ -136,10 +131,10 @@ class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığ
                 print("Child: ",self.populations[i].get_value())
                 values.append(Individual())
                 values[i].set_value(ind_one)
-
+                
         self.populations=values
                 
-    def bit_flipping_mutation(self): #Mutation          #mutasyon işlemi
+    def bit_flipping_mutation(self): #Mutation
         #print
         print("Applying mutation to: ",end="")
         for i in self.populations:
@@ -147,7 +142,7 @@ class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığ
         print("\n")
         print("Mutated offspring: ",end="")
         #
-        change=lambda x:1 if x == 0 else 0          #mutasyon yapan lambda
+        change=lambda x:1 if x == 0 else 0
         for i in range(self.population_length):
             values=[]
             val=self.populations[i].get_value()
@@ -157,8 +152,7 @@ class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığ
             self.populations[i].set_value(values)
             print(self.populations[i].get_value(),end="")
             
-            
-    def quick_sort(self,popuation):          #sort() fonksiyonu yerine yazılmış quickSort foknksiyonu
+    def quick_sort(self,popuation):
         less,equal,greater = ([],[],[])
         if len(popuation) > 1:
             pivot = popuation[0].get_fitness()
@@ -174,22 +168,21 @@ class GeneticAlgorithm(Individual,Goods):               #işlemlerin yapıldığ
         else:
             return popuation
     
-    def survival_select(self):#en iyilerin seçildiği fonksiyon
+    def survival_select(self):
         self.calculate_fitness()
-
         self.populations=self.quick_sort(self.parents+self.populations)[0:self.population_length]
 
-        shuffle(self.populations)#aynı fitness'e sahip değerlerin yeri değişsin diye shuffle yapılmıştır.
+        shuffle(self.populations)
         self.calculate_fitness()
         
-    def fit_model(self,iteration=-1): #modelin çağrıldığı ve grafiğin çizildiği arayüz 
+    def fit_model(self,iteration=-1): 
         if iteration == -1:
             iteration=self.iteration_length
         for i in range(iteration):
-            #print("İteration ",i+1)
             self.calculate()
+            
         plt.scatter(range(0,iteration),self.all_fitness[0],c="blue")
-        plt.scatter(range(0,iteration),self.all_fitness[1],c="brown") # yardırma ekranı
+        plt.scatter(range(0,iteration),self.all_fitness[1],c="brown")
         plt.scatter(range(0,iteration),self.all_fitness[2],c="red")
         plt.plot(range(0,iteration),self.all_fitness[0],"blue"\
                  ,range(0,iteration),self.all_fitness[1],"brown"\
